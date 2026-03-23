@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Davinci - เกมทายภาพ</title>
+    <meta name="description" content="เข้าร่วมเกมทายภาพ Davinci">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* Mobile-specific overrides */
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- CONFETTI CONTAINER -->
+    <div class="confetti-container" id="confettiContainer"></div>
+
+    <!-- ============ JOIN SCREEN ============ -->
+    <div id="joinScreen" class="join-screen">
+        <div class="join-card glass-card">
+            <div class="logo">🎨 DAVINCI</div>
+            <div class="subtitle">เกมทายภาพ</div>
+            <div class="input-group">
+                <input type="text" id="nameInput" placeholder="พิมพ์ชื่อของคุณ..." maxlength="20" autocomplete="off">
+            </div>
+            <button class="btn btn-primary" id="joinBtn" onclick="joinGame()">
+                🎮 เข้าร่วมเกม
+            </button>
+        </div>
+    </div>
+
+    <!-- ============ WAITING SCREEN ============ -->
+    <div id="waitingScreen" class="waiting-screen">
+        <div class="waiting-animation"></div>
+        <div class="waiting-text">รอ Host เริ่มเกม...</div>
+        <div class="waiting-sub">เตรียมตัวให้พร้อม!</div>
+        <div class="player-name-display" id="myNameDisplay"></div>
+        <div class="player-count-bar glass-card" style="margin-top: 30px;">
+            <div class="pulse-dot"></div>
+            <div class="count" id="waitPlayerCount">0</div>
+            <div class="label">ผู้เล่น</div>
+        </div>
+    </div>
+
+    <!-- ============ GAME SCREEN ============ -->
+    <div id="gameScreen" class="player-game-screen">
+        <div class="player-header">
+            <div class="player-round" id="playerRoundText">ข้อ 1 / 10</div>
+            <div class="player-score-badge">⭐ <span id="myScore">0</span></div>
+        </div>
+
+        <div class="player-image-container">
+            <img id="playerImage" class="player-question-image" src="" alt="Guess this image">
+        </div>
+
+        <div class="guess-input-container">
+            <form class="guess-form" onsubmit="submitGuess(event)">
+                <input type="text" id="guessInput" placeholder="พิมพ์คำตอบ..." maxlength="50" autocomplete="off">
+                <button type="submit" class="btn btn-primary">📤</button>
+            </form>
+        </div>
+
+        <div class="my-guesses" id="myGuesses"></div>
+    </div>
+
+    <!-- ============ WINNER SCREEN (on player device) ============ -->
+    <div id="playerWinnerScreen" class="player-winner-screen">
+        <div class="player-winner-card glass-card">
+            <div class="you-won" id="winEmoji">👏</div>
+            <div id="winMessage" class="someone-won-text"></div>
+            <div class="correct-answer-display" id="correctAnswerDisplay"></div>
+            <div class="wait-next-text">รอ Host ไปข้อถัดไป...</div>
+        </div>
+    </div>
+
+    <!-- ============ FINAL SCOREBOARD (on player device) ============ -->
+    <div id="playerScoreboard" class="player-scoreboard">
+        <div class="header">
+            <div class="logo">🎨 DAVINCI</div>
+        </div>
+        <div class="scoreboard-title">🏆 สรุปผลคะแนน</div>
+        <div class="score-list" id="playerScoreList"></div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let myName = '';
+        let myScore = 0;
+        let hasJoined = false;
+        let myGuesses = [];
+
+        // ======== JOIN ========
+        function joinGame() {
+            const name = document.getElementById('nameInput').value.trim();
+            if (!name) {
+                document.getElementById('nameInput').focus();
+                document.getElementById('nameInput').style.borderColor = '#ef4444';
+                return;
+            }
+
+            myName = name;
+            socket.emit('join', name);
+
+            // Switch to waiting screen
+            document.getElementById('joinScreen').style.display = 'none';
+            document.getElementById('waitingScreen').classList.add('active');
+            document.getElementById('myNameDisplay').textContent = `👤 ${name}`;
+            hasJoined = true;
+        }
+
+        // Enter key to join
+        document.getElementById('nameInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') joinGame();
+        });
+
+        // ======== WAITING ========
+        socket.on('player-joined', (data) => {
+            document.getElementById('waitPlayerCount').textContent = data.playerCount;
+        });
+
+        socket.on('player-left', (data) => {
+            document.getElementById('waitPlayerCount').textContent = data.playerCount;
+        });
+
+        // ======== ROUND START ========
+        socket.on('round-start', (data) => {
+            if (!hasJoined) return;
+
+            hideAll();
+            document.getElementById('gameScreen').classList.add('active');
+
+            document.getElementById('playerRoundText').textContent = `ข้อ ${data.roundNumber} / ${data.totalRounds}`;
+            document.getElementById('playerImage').src = data.question.image;
+            document.getElementById('guessInput').value = '';
+            document.getElementById('guessInput').disabled = false;
+            document.getElementById('myGuesses').innerHTML = '';
+            myGuesses = [];
+
+            // Update score
+            const me = data.players.find(p => p.name === myName);
+            if (me) {
+                myScore = me.score;
+                document.getElementById('myScore').textContent = myScore;
+            }
+
+            // Focus input
+            setTimeout(() => {
+                document.getElementById('guessInput').focus();
+            }, 500);
+        });
+
+        // ======== SUBMIT GUESS ========
+        function submitGuess(e) {
+            e.preventDefault();
+            const input = document.getElementById('guessInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            socket.emit('submit-guess', text);
+            myGuesses.push(text);
+
+            // Show in my guesses list
+            const container = document.getElementById('myGuesses');
+            const item = document.createElement('div');
+            item.className = 'my-guess-item';
+            item.textContent = text;
+            container.appendChild(item);
+
+            input.value = '';
+            input.focus();
+        }
+
+        // ======== ROUND WINNER ========
+        socket.on('round-winner', (data) => {
+            if (!hasJoined) return;
+
+            hideAll();
+            document.getElementById('playerWinnerScreen').classList.add('active');
+
+            const isMe = data.winner.name === myName;
+
+            if (data.winner.name === null) {
+                // Host revealed answer manually
+                document.getElementById('winEmoji').textContent = '💡';
+                document.getElementById('winMessage').innerHTML = `<div class="someone-won-text"><strong style="color:var(--text)">หมดเวลา! เฉลยคือ...</strong></div>`;
+            } else if (isMe) {
+                document.getElementById('winEmoji').textContent = '🎉';
+                document.getElementById('winMessage').innerHTML = `<div class="you-won-text">คุณชนะ!</div>`;
+                myScore++;
+                document.getElementById('myScore').textContent = myScore;
+                launchConfetti();
+            } else {
+                document.getElementById('winEmoji').textContent = '👏';
+                document.getElementById('winMessage').innerHTML = `<div class="someone-won-text"><strong style="color:#f59e0b">${data.winner.name}</strong> ตอบถูก!</div>`;
+            }
+
+            document.getElementById('correctAnswerDisplay').textContent = `คำตอบ: ${data.winner.answer}`;
+
+            if (data.isLastRound) {
+                document.querySelector('#playerWinnerScreen .wait-next-text').textContent = 'รอดูผลคะแนนรวม...';
+            }
+        });
+
+        // ======== GAME OVER ========
+        socket.on('game-over', (data) => {
+            if (!hasJoined) return;
+
+            hideAll();
+            document.getElementById('playerScoreboard').classList.add('active');
+
+            const list = document.getElementById('playerScoreList');
+            list.innerHTML = '';
+            data.players.forEach((p, i) => {
+                const item = document.createElement('div');
+                item.className = 'score-item glass-card';
+                item.style.animationDelay = `${i * 0.1}s`;
+
+                const isMe = p.name === myName;
+                const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`;
+                const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+
+                item.innerHTML = `
+          <div class="score-rank ${rankClass}">${medal}</div>
+          <div class="score-name" ${isMe ? 'style="color: var(--accent-2)"' : ''}>${p.name} ${isMe ? '(คุณ)' : ''}</div>
+          <div class="score-points">${p.score} คะแนน</div>
+        `;
+                list.appendChild(item);
+            });
+
+            launchConfetti();
+        });
+
+        // ======== GAME RESET ========
+        socket.on('game-reset', (data) => {
+            hideAll();
+            document.getElementById('waitingScreen').classList.add('active');
+            document.getElementById('waitPlayerCount').textContent = data.players.length;
+            myScore = 0;
+            document.getElementById('myScore').textContent = '0';
+        });
+
+        // ======== HELPERS ========
+        function hideAll() {
+            document.getElementById('joinScreen').style.display = 'none';
+            document.getElementById('waitingScreen').classList.remove('active');
+            document.getElementById('gameScreen').classList.remove('active');
+            document.getElementById('playerWinnerScreen').classList.remove('active');
+            document.getElementById('playerScoreboard').classList.remove('active');
+        }
+
+        // ======== CONFETTI ========
+        function launchConfetti() {
+            const container = document.getElementById('confettiContainer');
+            const colors = ['#7c3aed', '#06b6d4', '#f59e0b', '#ef4444', '#10b981', '#ec4899'];
+
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = (Math.random() * 8 + 4) + 'px';
+                confetti.style.height = (Math.random() * 8 + 4) + 'px';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                confetti.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+                confetti.style.animationDelay = (Math.random() * 1) + 's';
+                container.appendChild(confetti);
+            }
+
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 4000);
+        }
+
+        // ======== RECONNECT STATE ========
+        socket.on('game-state', (data) => {
+            if (!hasJoined) return;
+
+            document.getElementById('waitPlayerCount').textContent = data.players.length;
+
+            if (data.status === 'playing' && data.question) {
+                hideAll();
+                document.getElementById('gameScreen').classList.add('active');
+                document.getElementById('playerRoundText').textContent = `ข้อ ${data.question.roundNumber} / ${data.totalRounds}`;
+                document.getElementById('playerImage').src = data.question.image;
+            }
+        });
+    </script>
+</body>
+
+</html>

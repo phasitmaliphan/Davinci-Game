@@ -1,0 +1,16 @@
+{
+  "name": "davinci",
+  "version": "1.0.0",
+  "description": "Real-time image guessing game for theater audiences",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.7.4",
+    "untun": "^0.1.3"
+  }
+}

@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Davinci - Host View</title>
+  <meta name="description" content="Davinci Image Guessing Game - Host Control Panel">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .qr-section {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      padding: 30px 40px;
+      margin: 30px auto;
+      max-width: 650px;
+    }
+
+    .qr-image {
+      width: 200px;
+      height: 200px;
+      border-radius: var(--radius-sm);
+      background: white;
+      padding: 8px;
+      flex-shrink: 0;
+    }
+
+    .qr-info {
+      flex: 1;
+    }
+
+    .qr-info .join-label {
+      font-size: 20px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .qr-info .join-url {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--accent-2);
+      word-break: break-all;
+      margin-bottom: 8px;
+    }
+
+    .qr-hint {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .nav-controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      padding: 20px;
+      margin-top: 10px;
+    }
+
+    .nav-controls .btn {
+      min-width: 140px;
+    }
+
+    .round-display {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      min-width: 100px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- CONFETTI CONTAINER -->
+  <div class="confetti-container" id="confettiContainer"></div>
+
+  <!-- ============ LOBBY ============ -->
+  <div id="lobbyScreen" class="lobby">
+    <div class="header">
+      <div class="logo">🎨 DAVINCI</div>
+      <div class="subtitle">เกมทายภาพ — Image Guessing Game</div>
+    </div>
+
+    <!-- QR CODE SECTION -->
+    <div class="qr-section glass-card">
+      <img id="qrImage" class="qr-image" src="" alt="QR Code">
+      <div class="qr-info">
+        <div class="join-label">📱 สแกน QR เพื่อเข้าร่วมเกม</div>
+        <div class="join-url" id="joinUrl">Loading...</div>
+        <div class="qr-hint">หรือเปิด Browser แล้วพิมพ์ URL ด้านบน</div>
+      </div>
+    </div>
+
+    <div class="player-count-bar glass-card">
+      <div class="pulse-dot"></div>
+      <div class="count" id="playerCount">0</div>
+      <div class="label">ผู้เล่นเข้าร่วมแล้ว</div>
+    </div>
+
+    <div class="players-grid" id="playersGrid"></div>
+
+    <div class="host-controls">
+      <a href="/admin.html" class="btn btn-secondary">⚙️ จัดการคำถาม</a>
+      <button class="btn btn-primary" id="startBtn" disabled onclick="startGame()">
+        🚀 เริ่มเกม
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ GAME BOARD ============ -->
+  <div id="gameBoard" class="game-board">
+    <div class="round-indicator">
+      <div class="round-number" id="roundText">ข้อ 1 / 10</div>
+      <div class="round-bar" id="roundBar"></div>
+    </div>
+
+    <div class="board-layout">
+      <div class="image-section glass-card">
+        <img id="questionImage" class="question-image" src="" alt="Guess this image">
+      </div>
+
+      <div class="wordcloud-section glass-card">
+        <div class="wordcloud-title">💬 คำตอบจากผู้เล่น</div>
+        <div class="guess-counter">คำตอบทั้งหมด: <span id="guessCount">0</span></div>
+        <div class="wordcloud" id="wordcloud"></div>
+      </div>
+    </div>
+
+    <!-- NEXT / BACK NAVIGATION -->
+    <div class="nav-controls">
+      <button class="btn btn-secondary" id="prevBtn" onclick="prevRound()">
+        ⬅️ ย้อนกลับ
+      </button>
+      <div class="round-display" id="navRoundText"></div>
+      <button class="btn btn-warning" id="revealBtn" onclick="revealAnswer()" style="margin-right: 8px;">
+        💡 เฉลย
+      </button>
+      <button class="btn btn-success" id="nextBtn" onclick="nextRound()">
+        ข้อถัดไป ➡️
+      </button>
+      <button class="btn btn-danger" id="endBtn" onclick="endGame()" style="margin-left:16px">
+        🏁 จบเกม
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ WINNER OVERLAY ============ -->
+  <div id="winnerOverlay" class="winner-overlay">
+    <div class="winner-card glass-card">
+      <div class="winner-emoji">🏆</div>
+      <div class="winner-label">ผู้ชนะ!</div>
+      <div class="winner-name" id="winnerName"></div>
+      <div class="winner-answer">คำตอบ: <span id="winnerAnswer"></span></div>
+      <div style="display:flex; gap:12px; justify-content:center; margin-top:20px;">
+        <button class="btn btn-secondary" onclick="dismissWinner()">✕ ปิด</button>
+        <button class="btn btn-success" id="overlayNextBtn" onclick="dismissWinner(); nextRound();">
+          ➡️ ข้อถัดไป
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ FINAL SCOREBOARD ============ -->
+  <div id="scoreboardScreen" class="scoreboard">
+    <div class="header">
+      <div class="logo">🎨 DAVINCI</div>
+    </div>
+    <div class="scoreboard-title">🏆 สรุปผลคะแนน</div>
+    <div class="score-list" id="scoreList"></div>
+    <div class="host-controls" style="margin-top:40px">
+      <button class="btn btn-primary" onclick="resetGame()">🔄 เล่นใหม่</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    let currentRound = 0;
+    let totalRounds = 10;
+
+    // ======== QR CODE ========
+    fetch('/api/qrcode')
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('qrImage').src = data.qr;
+        document.getElementById('joinUrl').textContent = data.url;
+      })
+      .catch(() => {
+        document.getElementById('joinUrl').textContent = `http://${window.location.host}`;
+      });
+
+    const playerColors = [
+      'word-color-1', 'word-color-2', 'word-color-3',
+      'word-color-4', 'word-color-5', 'word-color-6'
+    ];
+    let colorIndex = 0;
+    function getNextColor() {
+      const c = playerColors[colorIndex % playerColors.length];
+      colorIndex++;
+      return c;
+    }
+    let wordSizeIndex = 0;
+    function getRandomSize() {
+      wordSizeIndex++;
+      return 'word-size-' + (((wordSizeIndex * 7) % 4) + 1);
+    }
+
+    // ======== LOBBY ========
+    socket.on('player-joined', (data) => {
+      document.getElementById('playerCount').textContent = data.playerCount;
+      renderPlayerTags(data.players);
+      document.getElementById('startBtn').disabled = data.playerCount < 1;
+    });
+    socket.on('player-left', (data) => {
+      document.getElementById('playerCount').textContent = data.playerCount;
+      renderPlayerTags(data.players);
+    });
+    function renderPlayerTags(players) {
+      const grid = document.getElementById('playersGrid');
+      grid.innerHTML = '';
+      players.forEach((p, i) => {
+        const tag = document.createElement('div');
+        tag.className = `player-tag glass-card ${playerColors[i % playerColors.length]}`;
+        tag.textContent = p.name;
+        grid.appendChild(tag);
+      });
+    }
+
+    // ======== GAME ========
+    function startGame() {
+      socket.emit('start-game');
+    }
+
+    socket.on('round-start', (data) => {
+      document.getElementById('lobbyScreen').style.display = 'none';
+      document.getElementById('scoreboardScreen').classList.remove('active');
+      document.getElementById('gameBoard').classList.add('active');
+      document.getElementById('winnerOverlay').classList.remove('active');
+
+      currentRound = data.roundNumber - 1;
+      totalRounds = data.totalRounds;
+
+      // Round text
+      document.getElementById('roundText').textContent = `ข้อ ${data.roundNumber} / ${data.totalRounds}`;
+      document.getElementById('navRoundText').textContent = `${data.roundNumber} / ${data.totalRounds}`;
+
+      // Round bar
+      const bar = document.getElementById('roundBar');
+      bar.innerHTML = '';
+      for (let i = 0; i < data.totalRounds; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'round-dot';
+        if (i < data.roundNumber - 1) dot.classList.add('completed');
+        if (i === data.roundNumber - 1) dot.classList.add('active');
+        bar.appendChild(dot);
+      }
+
+      // Nav buttons state
+      document.getElementById('prevBtn').disabled = currentRound <= 0;
+      document.getElementById('nextBtn').disabled = currentRound >= totalRounds - 1;
+      document.getElementById('revealBtn').disabled = false;
+
+      // Image
+      const img = document.getElementById('questionImage');
+      img.src = data.question.image + '?t=' + Date.now();
+      img.style.animation = 'none';
+      void img.offsetHeight;
+      img.style.animation = 'imageReveal 0.8s ease';
+
+      // Clear word cloud
+      document.getElementById('wordcloud').innerHTML = '';
+      document.getElementById('guessCount').textContent = '0';
+      wordSizeIndex = 0;
+      colorIndex = 0;
+    });
+
+    socket.on('new-guess', (data) => {
+      const cloud = document.getElementById('wordcloud');
+      const item = document.createElement('div');
+      item.className = `word-item ${getNextColor()} ${getRandomSize()}`;
+      item.innerHTML = `<strong>${data.name}</strong>: ${data.text}`;
+      cloud.appendChild(item);
+      document.getElementById('guessCount').textContent = data.guessCount;
+      cloud.scrollTop = cloud.scrollHeight;
+    });
+
+    socket.on('round-winner', (data) => {
+      document.getElementById('revealBtn').disabled = true;
+      document.getElementById('winnerOverlay').classList.add('active');
+
+      if (data.winner.name) {
+        document.getElementById('winnerName').textContent = data.winner.name;
+        document.getElementById('winnerName').style.display = 'block';
+        document.querySelector('.winner-label').textContent = 'ผู้ชนะ!';
+      } else {
+        document.getElementById('winnerName').style.display = 'none';
+        document.querySelector('.winner-label').textContent = '💡 หมดเวลา! เฉลยคือ';
+      }
+
+      document.getElementById('winnerAnswer').textContent = data.winner.answer;
+      
+      if (data.isLastRound) {
+        document.getElementById('overlayNextBtn').textContent = '📊 ดูผลคะแนน';
+      } else {
+        document.getElementById('overlayNextBtn').textContent = '➡️ ข้อถัดไป';
+      }
+      launchConfetti();
+    });
+
+    function dismissWinner() {
+      document.getElementById('winnerOverlay').classList.remove('active');
+    }
+
+    function nextRound() {
+      socket.emit('next-round');
+    }
+
+    function prevRound() {
+      socket.emit('prev-round');
+    }
+
+    function revealAnswer() {
+      socket.emit('reveal-answer');
+    }
+
+    function endGame() {
+      socket.emit('end-game');
+    }
+
+    // ======== GAME OVER ========
+    socket.on('game-over', (data) => {
+      document.getElementById('gameBoard').classList.remove('active');
+      document.getElementById('winnerOverlay').classList.remove('active');
+      document.getElementById('scoreboardScreen').classList.add('active');
+      renderScoreboard(data.players);
+      launchConfetti();
+    });
+
+    function renderScoreboard(players) {
+      const list = document.getElementById('scoreList');
+      list.innerHTML = '';
+      players.forEach((p, i) => {
+        const item = document.createElement('div');
+        item.className = 'score-item glass-card';
+        item.style.animationDelay = `${i * 0.1}s`;
+        const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`;
+        item.innerHTML = `
+          <div class="score-rank ${rankClass}">${medal}</div>
+          <div class="score-name">${p.name}</div>
+          <div class="score-points">${p.score} คะแนน</div>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function resetGame() {
+      socket.emit('reset-game');
+    }
+
+    socket.on('game-reset', (data) => {
+      document.getElementById('scoreboardScreen').classList.remove('active');
+      document.getElementById('gameBoard').classList.remove('active');
+      document.getElementById('winnerOverlay').classList.remove('active');
+      document.getElementById('lobbyScreen').style.display = 'block';
+      renderPlayerTags(data.players);
+    });
+
+    // ======== CONFETTI ========
+    function launchConfetti() {
+      const container = document.getElementById('confettiContainer');
+      const colors = ['#7c3aed', '#06b6d4', '#f59e0b', '#ef4444', '#10b981', '#ec4899', '#fbbf24'];
+      for (let i = 0; i < 80; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + '%';
+        confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.width = (Math.random() * 10 + 5) + 'px';
+        confetti.style.height = (Math.random() * 10 + 5) + 'px';
+        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        confetti.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+        confetti.style.animationDelay = (Math.random() * 1) + 's';
+        container.appendChild(confetti);
+      }
+      setTimeout(() => { container.innerHTML = ''; }, 4000);
+    }
+
+    // ======== RECONNECT STATE ========
+    socket.on('game-state', (data) => {
+      document.getElementById('playerCount').textContent = data.players.length;
+      renderPlayerTags(data.players);
+      document.getElementById('startBtn').disabled = data.players.length < 1;
+      totalRounds = data.totalRounds;
+
+      if (data.status === 'playing' && data.question) {
+        document.getElementById('lobbyScreen').style.display = 'none';
+        document.getElementById('gameBoard').classList.add('active');
+        currentRound = data.question.roundNumber - 1;
+        document.getElementById('roundText').textContent = `ข้อ ${data.question.roundNumber} / ${data.totalRounds}`;
+        document.getElementById('navRoundText').textContent = `${data.question.roundNumber} / ${data.totalRounds}`;
+        document.getElementById('questionImage').src = data.question.image;
+        document.getElementById('prevBtn').disabled = currentRound <= 0;
+        document.getElementById('nextBtn').disabled = currentRound >= totalRounds - 1;
+      }
+    });
+  </script>
+</body>
+
+</html>

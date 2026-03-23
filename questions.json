@@ -1,0 +1,103 @@
+[
+  {
+    "id": 1,
+    "image": "/images/q1.png",
+    "answers": [
+      "มหาสมุทร",
+      "ocean"
+    ],
+    "display": "มหาสมุทร (ม้าหาสมุด)"
+  },
+  {
+    "id": 2,
+    "image": "/images/q2.png",
+    "answers": [
+      "กองทัพเรือ"
+    ],
+    "display": "กองทัพเรือ (กลองทับเรือ)"
+  },
+  {
+    "id": 3,
+    "image": "/images/q3.png",
+    "answers": [
+      "บาร์โค้ด",
+      "Barcode"
+    ],
+    "display": "บาร์โค้ด (Barcode)"
+  },
+  {
+    "id": 4,
+    "image": "/images/q4.png",
+    "answers": [
+      "ใบขับขี่"
+    ],
+    "display": "ใบขับขี่"
+  },
+  {
+    "id": 5,
+    "image": "/images/q5.png",
+    "answers": [
+      "ยาสีฟัน"
+    ],
+    "display": "ยาสีฟัน"
+  },
+  {
+    "id": 6,
+    "image": "/images/q6.png",
+    "answers": [
+      "ลูกฟุตบอล",
+      "ฟุตบอล",
+      "football",
+      "soccer",
+      "soccer ball",
+      "บอล"
+    ],
+    "display": "ลูกฟุตบอล (Soccer Ball)"
+  },
+  {
+    "id": 7,
+    "image": "/images/q7.png",
+    "answers": [
+      "กุหลาบ",
+      "ดอกกุหลาบ",
+      "rose",
+      "red rose"
+    ],
+    "display": "ดอกกุหลาบ (Rose)"
+  },
+  {
+    "id": 8,
+    "image": "/images/q8.png",
+    "answers": [
+      "กีตาร์",
+      "guitar",
+      "acoustic guitar",
+      "กีต้าร์"
+    ],
+    "display": "กีตาร์ (Guitar)"
+  },
+  {
+    "id": 9,
+    "image": "/images/q9.png",
+    "answers": [
+      "ภูเขาไฟฟูจิ",
+      "fuji",
+      "mount fuji",
+      "ฟูจิ",
+      "mt fuji",
+      "fujisan"
+    ],
+    "display": "ภูเขาไฟฟูจิ (Mount Fuji)"
+  },
+  {
+    "id": 10,
+    "image": "/images/q10.png",
+    "answers": [
+      "ปะการัง",
+      "แนวปะการัง",
+      "coral",
+      "coral reef"
+    ],
+    "display": "แนวปะการัง (Coral Reef)"
+  }
+]

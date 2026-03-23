@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Davinci — Admin Panel</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .admin-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .admin-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .admin-header .logo {
+            font-size: 36px;
+        }
+
+        .admin-header .subtitle {
+            font-size: 16px;
+        }
+
+        .question-card {
+            padding: 24px;
+            margin-bottom: 16px;
+            transition: var(--transition);
+        }
+
+        .question-card:hover {
+            border-color: var(--accent-1);
+        }
+
+        .q-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .q-number {
+            font-size: 24px;
+            font-weight: 800;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            min-width: 60px;
+        }
+
+        .q-status {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 50px;
+            background: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+        }
+
+        .q-body {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .q-image-preview {
+            width: 150px;
+            height: 110px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+            background: var(--glass);
+            border: 2px dashed var(--glass-border);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .q-image-preview:hover {
+            border-color: var(--accent-2);
+        }
+
+        .upload-label {
+            display: block;
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 6px;
+            cursor: pointer;
+        }
+
+        .upload-label:hover {
+            color: var(--accent-2);
+        }
+
+        .q-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .field-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .field-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            transition: var(--transition);
+        }
+
+        .field-input:focus {
+            outline: none;
+            border-color: var(--accent-1);
+            box-shadow: 0 0 15px rgba(124, 58, 237, 0.2);
+        }
+
+        .field-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .help-text {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .save-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 30px;
+            background: rgba(10, 10, 26, 0.95);
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            z-index: 10;
+            backdrop-filter: blur(20px);
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 14px 24px;
+            border-radius: var(--radius-sm);
+            background: rgba(16, 185, 129, 0.9);
+            color: white;
+            font-weight: 600;
+            z-index: 100;
+            animation: fadeInUp 0.3s ease;
+            display: none;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        .toast.error {
+            background: rgba(239, 68, 68, 0.9);
+        }
+
+        .spacer {
+            height: 80px;
+        }
+
+        @media (max-width: 600px) {
+            .q-body {
+                grid-template-columns: 1fr;
+            }
+
+            .q-image-preview {
+                width: 100%;
+                height: 160px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="toast" id="toast"></div>
+
+    <div class="admin-container">
+        <div class="admin-header">
+            <div class="logo">⚙️ DAVINCI Admin</div>
+            <div class="subtitle">จัดการคำถามและคำตอบ — แก้ไขได้ง่ายๆ</div>
+        </div>
+
+        <div id="questionsList"></div>
+        <div class="spacer"></div>
+    </div>
+
+    <div class="save-bar">
+        <a href="/host.html" class="btn btn-secondary">📺 ไปหน้า Host</a>
+        <button class="btn btn-primary" onclick="saveAll()">💾 บันทึกทั้งหมด</button>
+    </div>
+
+    <script>
+        let questions = [];
+
+        async function loadQuestions() {
+            const res = await fetch('/api/questions');
+            questions = await res.json();
+            renderQuestions();
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('questionsList');
+            container.innerHTML = '';
+
+            questions.forEach((q, i) => {
+                const card = document.createElement('div');
+                card.className = 'question-card glass-card';
+                card.innerHTML = `
+          <div class="q-header">
+            <div class="q-number">ข้อ ${q.id}</div>
+            <div class="q-status">✓ มีภาพ</div>
+          </div>
+          <div class="q-body">
+            <div>
+              <img 
+                src="${q.image}?t=${Date.now()}" 
+                class="q-image-preview" 
+                id="preview-${q.id}"
+                onclick="document.getElementById('file-${q.id}').click()"
+                onerror="this.style.opacity=0.3"
+                alt="Question ${q.id}"
+              >
+              <input type="file" id="file-${q.id}" accept="image/*" style="display:none" onchange="uploadImage(${q.id}, this)">
+              <div class="upload-label" onclick="document.getElementById('file-${q.id}').click()">📷 คลิกเปลี่ยนรูป</div>
+            </div>
+            <div class="q-fields">
+              <div>
+                <div class="field-label">คำตอบที่แสดง (Display)</div>
+                <input 
+                  class="field-input" 
+                  id="display-${q.id}" 
+                  value="${q.display || ''}" 
+                  placeholder="เช่น หอไอเฟล (Eiffel Tower)"
+                >
+              </div>
+              <div>
+                <div class="field-label">คำตอบที่ยอมรับ (คั่นด้วย comma)</div>
+                <input 
+                  class="field-input" 
+                  id="answers-${q.id}" 
+                  value="${(q.answers || []).join(', ')}" 
+                  placeholder="เช่น หอไอเฟล, eiffel tower, eiffel, ไอเฟล"
+                >
+                <div class="help-text">ใส่คำตอบหลายรูปแบบคั่นด้วยเครื่องหมาย comma ( , )</div>
+              </div>
+            </div>
+          </div>
+        `;
+                container.appendChild(card);
+            });
+        }
+
+        async function uploadImage(id, input) {
+            if (!input.files[0]) return;
+            const file = input.files[0];
+
+            const formData = await file.arrayBuffer();
+            const res = await fetch(`/api/upload/${id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': file.type },
+                body: formData
+            });
+
+            if (res.ok) {
+                document.getElementById(`preview-${id}`).src = `/images/q${id}.png?t=${Date.now()}`;
+                showToast('✅ อัปโหลดรูปสำเร็จ!');
+            } else {
+                showToast('❌ อัปโหลดรูปล้มเหลว', true);
+            }
+        }
+
+        async function saveAll() {
+            questions.forEach(q => {
+                const displayEl = document.getElementById(`display-${q.id}`);
+                const answersEl = document.getElementById(`answers-${q.id}`);
+                if (displayEl) q.display = displayEl.value.trim();
+                if (answersEl) {
+                    q.answers = answersEl.value.split(',').map(a => a.trim()).filter(a => a.length > 0);
+                }
+            });
+
+            const res = await fetch('/api/questions', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(questions)
+            });
+
+            if (res.ok) {
+                showToast('✅ บันทึกสำเร็จ!');
+            } else {
+                showToast('❌ บันทึกล้มเหลว', true);
+            }
+        }
+
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = `toast show ${isError ? 'error' : ''}`;
+            setTimeout(() => toast.className = 'toast', 3000);
+        }
+
+        loadQuestions();
+    </script>
+</body>
+
+</html>
