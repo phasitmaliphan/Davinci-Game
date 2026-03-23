@@ -29,7 +29,8 @@
     "id": 4,
     "image": "/images/q4.png",
     "answers": [
-      "ใบขับขี่"
+      "ใบขับขี่",
+      "license"
     ],
     "display": "ใบขับขี่"
   },
@@ -37,7 +38,8 @@
     "id": 5,
     "image": "/images/q5.png",
     "answers": [
-      "ยาสีฟัน"
+      "ยาสีฟัน",
+      "toothpaste"
     ],
     "display": "ยาสีฟัน"
   },
@@ -45,59 +47,45 @@
     "id": 6,
     "image": "/images/q6.png",
     "answers": [
-      "ลูกฟุตบอล",
-      "ฟุตบอล",
-      "football",
-      "soccer",
-      "soccer ball",
-      "บอล"
+      "กระเป๋าเดินทาง",
+      "luggage"
     ],
-    "display": "ลูกฟุตบอล (Soccer Ball)"
+    "display": "กระเป๋าเดินทาง"
   },
   {
     "id": 7,
     "image": "/images/q7.png",
     "answers": [
-      "กุหลาบ",
-      "ดอกกุหลาบ",
-      "rose",
-      "red rose"
+      "แอลกอฮอล์",
+      "alcohol"
     ],
-    "display": "ดอกกุหลาบ (Rose)"
+    "display": "แอลกอฮอล์ (แอลเกาะฮอ)"
   },
   {
     "id": 8,
     "image": "/images/q8.png",
     "answers": [
-      "กีตาร์",
-      "guitar",
-      "acoustic guitar",
-      "กีต้าร์"
+      "รถบังคับวิทยุ"
     ],
-    "display": "กีตาร์ (Guitar)"
+    "display": "รถบังคับวิทยุ"
   },
   {
     "id": 9,
     "image": "/images/q9.png",
     "answers": [
-      "ภูเขาไฟฟูจิ",
-      "fuji",
-      "mount fuji",
-      "ฟูจิ",
-      "mt fuji",
-      "fujisan"
+      "ปลาปิรันย่า",
+      "ปิรันย่า"
     ],
-    "display": "ภูเขาไฟฟูจิ (Mount Fuji)"
+    "display": "ปลาปิรันย่า"
   },
   {
     "id": 10,
     "image": "/images/q10.png",
     "answers": [
-      "ปะการัง",
-      "แนวปะการัง",
-      "coral",
-      "coral reef"
+      "What",
+      "what",
+      "อะไร"
     ],
-    "display": "แนวปะการัง (Coral Reef)"
+    "display": "What (W+hat)"
   }
 ]
