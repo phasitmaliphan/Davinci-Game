@@ -103,14 +103,61 @@ app.post('/api/upload/:id', express.raw({ type: 'image/*', limit: '10mb' }), (re
 });
 
 // ============ GAME STATE ============
+const ROUND_TIME = 60; // seconds per round
+
 let gameState = {
   status: 'waiting',    // waiting | playing | showing-winner | finished
   currentRound: 0,
   players: new Map(),   // socketId -> { name, score, joinedAt }
   guesses: [],          // { name, text, timestamp }
   winner: null,
-  totalRounds: 0
+  totalRounds: 0,
+  timeLeft: ROUND_TIME
 };
+
+// Store disconnected players for reconnection (name -> { score, disconnectedAt })
+let disconnectedPlayers = new Map();
+const RECONNECT_GRACE_MS = 5 * 60 * 1000; // 5 minutes grace period
+
+let roundTimerInterval = null;
+
+function clearRoundTimer() {
+  if (roundTimerInterval) {
+    clearInterval(roundTimerInterval);
+    roundTimerInterval = null;
+  }
+}
+
+function startRoundTimer() {
+  clearRoundTimer();
+  gameState.timeLeft = ROUND_TIME;
+
+  roundTimerInterval = setInterval(() => {
+    gameState.timeLeft--;
+    io.emit('timer-tick', { timeLeft: gameState.timeLeft });
+
+    if (gameState.timeLeft <= 0) {
+      clearRoundTimer();
+
+      // Auto-reveal answer
+      if (gameState.status === 'playing') {
+        const questions = loadQuestions();
+        gameState.status = 'showing-winner';
+        gameState.winner = {
+          name: null,
+          answer: questions[gameState.currentRound].display,
+          round: gameState.currentRound + 1
+        };
+        console.log('⏰ Time\'s up! Auto-revealing answer.');
+        io.emit('round-winner', {
+          winner: gameState.winner,
+          players: getPlayerList(),
+          isLastRound: gameState.currentRound >= questions.length - 1
+        });
+      }
+    }
+  }, 1000);
+}
 
 function resetGame() {
   gameState.status = 'waiting';
@@ -151,7 +198,8 @@ io.on('connection', (socket) => {
     players: getPlayerList(),
     guesses: gameState.guesses,
     winner: gameState.winner,
-    question: gameState.status === 'playing' ? {
+    timeLeft: gameState.timeLeft,
+    question: (gameState.status === 'playing' || gameState.status === 'showing-winner') ? {
       id: questions[gameState.currentRound]?.id,
       image: questions[gameState.currentRound]?.image,
       roundNumber: gameState.currentRound + 1
@@ -162,9 +210,26 @@ io.on('connection', (socket) => {
   socket.on('join', (name) => {
     if (!name || name.trim().length === 0) return;
     const trimmedName = name.trim().substring(0, 20);
+
+    // Check if this player was previously connected (reconnect)
+    let restoredScore = 0;
+    if (disconnectedPlayers.has(trimmedName)) {
+      restoredScore = disconnectedPlayers.get(trimmedName).score;
+      disconnectedPlayers.delete(trimmedName);
+      console.log(`🔄 ${trimmedName} rejoined with score ${restoredScore}`);
+    }
+
+    // Remove any existing entry with the same name (prevent duplicates)
+    for (const [existingId, existingPlayer] of gameState.players) {
+      if (existingPlayer.name === trimmedName && existingId !== socket.id) {
+        gameState.players.delete(existingId);
+        break;
+      }
+    }
+
     gameState.players.set(socket.id, {
       name: trimmedName,
-      score: 0,
+      score: restoredScore,
       joinedAt: Date.now()
     });
     console.log(`👤 ${trimmedName} joined (${gameState.players.size} players)`);
@@ -200,6 +265,7 @@ io.on('connection', (socket) => {
 
     // Check if correct
     if (checkAnswer(text, gameState.currentRound)) {
+      clearRoundTimer();
       player.score += 1;
       gameState.status = 'showing-winner';
       const questions = loadQuestions();
@@ -236,8 +302,10 @@ io.on('connection', (socket) => {
       roundNumber: 1,
       totalRounds: questions.length,
       question: { id: q.id, image: q.image },
-      players: getPlayerList()
+      players: getPlayerList(),
+      timeLeft: ROUND_TIME
     });
+    startRoundTimer();
   });
 
   // Go to specific round (supports next/back)
@@ -257,13 +325,16 @@ io.on('connection', (socket) => {
       roundNumber: roundIndex + 1,
       totalRounds: questions.length,
       question: { id: q.id, image: q.image },
-      players: getPlayerList()
+      players: getPlayerList(),
+      timeLeft: ROUND_TIME
     });
+    startRoundTimer();
   });
 
   // Reveal answer without anyone guessing
   socket.on('reveal-answer', () => {
     if (gameState.status !== 'playing') return;
+    clearRoundTimer();
     const questions = loadQuestions();
 
     gameState.status = 'showing-winner';
@@ -303,8 +374,10 @@ io.on('connection', (socket) => {
       roundNumber: gameState.currentRound + 1,
       totalRounds: questions.length,
       question: { id: q.id, image: q.image },
-      players: getPlayerList()
+      players: getPlayerList(),
+      timeLeft: ROUND_TIME
     });
+    startRoundTimer();
   });
 
   socket.on('prev-round', () => {
@@ -323,17 +396,21 @@ io.on('connection', (socket) => {
       roundNumber: gameState.currentRound + 1,
       totalRounds: questions.length,
       question: { id: q.id, image: q.image },
-      players: getPlayerList()
+      players: getPlayerList(),
+      timeLeft: ROUND_TIME
     });
+    startRoundTimer();
   });
 
   socket.on('end-game', () => {
+    clearRoundTimer();
     gameState.status = 'finished';
     console.log('🏁 Game ended by host!');
     io.emit('game-over', { players: getPlayerList() });
   });
 
   socket.on('reset-game', () => {
+    clearRoundTimer();
     console.log('🔄 Game reset');
     resetGame();
     io.emit('game-reset', { players: getPlayerList() });
@@ -343,13 +420,27 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     const player = gameState.players.get(socket.id);
     if (player) {
-      console.log(`👋 ${player.name} disconnected`);
+      console.log(`👋 ${player.name} disconnected (saving for reconnect)`);
+      // Save player data for potential reconnection
+      disconnectedPlayers.set(player.name, {
+        score: player.score,
+        disconnectedAt: Date.now()
+      });
       gameState.players.delete(socket.id);
       io.emit('player-left', {
         name: player.name,
         playerCount: gameState.players.size,
         players: getPlayerList()
       });
+
+      // Clean up after grace period
+      setTimeout(() => {
+        const dc = disconnectedPlayers.get(player.name);
+        if (dc && Date.now() - dc.disconnectedAt >= RECONNECT_GRACE_MS) {
+          disconnectedPlayers.delete(player.name);
+          console.log(`🗑️ ${player.name} removed from reconnect pool (timed out)`);
+        }
+      }, RECONNECT_GRACE_MS);
     }
   });
 });

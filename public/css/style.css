@@ -202,8 +202,17 @@ body::before {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(1.5); }
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.5;
+    transform: scale(1.5);
+  }
 }
 
 /* ============ HOST - LOBBY ============ */
@@ -250,8 +259,15 @@ body::before {
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ============ HOST - GAME BOARD ============ */
@@ -326,8 +342,17 @@ body::before {
 }
 
 @keyframes imageReveal {
-  from { opacity: 0; transform: scale(0.9); filter: blur(20px); }
-  to { opacity: 1; transform: scale(1); filter: blur(0); }
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+    filter: blur(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
 }
 
 .wordcloud-section {
@@ -371,23 +396,70 @@ body::before {
 }
 
 @keyframes wordPop {
-  from { opacity: 0; transform: scale(0); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* Word sizes for variety */
-.word-size-1 { font-size: 14px; }
-.word-size-2 { font-size: 18px; }
-.word-size-3 { font-size: 22px; }
-.word-size-4 { font-size: 26px; }
+.word-size-1 {
+  font-size: 14px;
+}
+
+.word-size-2 {
+  font-size: 18px;
+}
+
+.word-size-3 {
+  font-size: 22px;
+}
+
+.word-size-4 {
+  font-size: 26px;
+}
 
 /* Word colors */
-.word-color-1 { background: rgba(124, 58, 237, 0.25); color: #a78bfa; border: 1px solid rgba(124, 58, 237, 0.3); }
-.word-color-2 { background: rgba(6, 182, 212, 0.25); color: #67e8f9; border: 1px solid rgba(6, 182, 212, 0.3); }
-.word-color-3 { background: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-.word-color-4 { background: rgba(239, 68, 68, 0.25); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
-.word-color-5 { background: rgba(16, 185, 129, 0.25); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
-.word-color-6 { background: rgba(236, 72, 153, 0.25); color: #f9a8d4; border: 1px solid rgba(236, 72, 153, 0.3); }
+.word-color-1 {
+  background: rgba(124, 58, 237, 0.25);
+  color: #a78bfa;
+  border: 1px solid rgba(124, 58, 237, 0.3);
+}
+
+.word-color-2 {
+  background: rgba(6, 182, 212, 0.25);
+  color: #67e8f9;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.word-color-3 {
+  background: rgba(245, 158, 11, 0.25);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.word-color-4 {
+  background: rgba(239, 68, 68, 0.25);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.word-color-5 {
+  background: rgba(16, 185, 129, 0.25);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.word-color-6 {
+  background: rgba(236, 72, 153, 0.25);
+  color: #f9a8d4;
+  border: 1px solid rgba(236, 72, 153, 0.3);
+}
 
 /* ============ WINNER OVERLAY ============ */
 .winner-overlay {
@@ -409,8 +481,13 @@ body::before {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .winner-card {
@@ -421,8 +498,15 @@ body::before {
 }
 
 @keyframes winnerBounce {
-  from { opacity: 0; transform: scale(0.5); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .winner-emoji {
@@ -432,8 +516,13 @@ body::before {
 }
 
 @keyframes trophy {
-  from { transform: rotate(-5deg) scale(1); }
-  to { transform: rotate(5deg) scale(1.1); }
+  from {
+    transform: rotate(-5deg) scale(1);
+  }
+
+  to {
+    transform: rotate(5deg) scale(1.1);
+  }
 }
 
 .winner-label {
@@ -508,9 +597,17 @@ body::before {
   min-width: 50px;
 }
 
-.score-rank.gold { color: #fbbf24; }
-.score-rank.silver { color: #94a3b8; }
-.score-rank.bronze { color: #d97706; }
+.score-rank.gold {
+  color: #fbbf24;
+}
+
+.score-rank.silver {
+  color: #94a3b8;
+}
+
+.score-rank.bronze {
+  color: #d97706;
+}
 
 .score-name {
   flex: 1;
@@ -528,9 +625,20 @@ body::before {
   background-clip: text;
 }
 
-.score-item:nth-child(1) { border: 1px solid rgba(251, 191, 36, 0.3); background: rgba(251, 191, 36, 0.08); }
-.score-item:nth-child(2) { border: 1px solid rgba(148, 163, 184, 0.3); background: rgba(148, 163, 184, 0.05); }
-.score-item:nth-child(3) { border: 1px solid rgba(217, 119, 6, 0.3); background: rgba(217, 119, 6, 0.05); }
+.score-item:nth-child(1) {
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  background: rgba(251, 191, 36, 0.08);
+}
+
+.score-item:nth-child(2) {
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: rgba(148, 163, 184, 0.05);
+}
+
+.score-item:nth-child(3) {
+  border: 1px solid rgba(217, 119, 6, 0.3);
+  background: rgba(217, 119, 6, 0.05);
+}
 
 /* ============ HOST CONTROLS ============ */
 .host-controls {
@@ -622,7 +730,9 @@ body::before {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .waiting-text {
@@ -835,8 +945,177 @@ body::before {
 }
 
 @keyframes confettiFall {
-  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* ============ TIMER - HOST (Circular Ring) ============ */
+.timer-display {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: 16px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timer-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.timer-ring-bg {
+  fill: none;
+  stroke: var(--glass-border);
+  stroke-width: 6;
+}
+
+.timer-ring-progress {
+  fill: none;
+  stroke: url(#timerGradient);
+  stroke: var(--accent-2);
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s ease, stroke 0.3s ease;
+}
+
+.timer-text {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--accent-2);
+  z-index: 1;
+  transition: color 0.3s ease;
+}
+
+.timer-display.timer-warning .timer-ring-progress {
+  stroke: var(--accent-3);
+}
+
+.timer-display.timer-warning .timer-text {
+  color: var(--accent-3);
+  animation: timerPulse 1s ease infinite;
+}
+
+.timer-display.timer-critical .timer-ring-progress {
+  stroke: var(--accent-4);
+}
+
+.timer-display.timer-critical .timer-text {
+  color: var(--accent-4);
+  animation: timerPulse 0.5s ease infinite;
+}
+
+.timer-display.timer-critical {
+  animation: timerShake 0.4s ease infinite;
+}
+
+/* ============ TIMER - PLAYER (Bar + Badge) ============ */
+.player-timer-badge {
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 700;
+  background: rgba(6, 182, 212, 0.2);
+  color: var(--accent-2);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  transition: all 0.3s ease;
+}
+
+.player-timer-badge.timer-warning {
+  background: rgba(245, 158, 11, 0.25);
+  color: var(--accent-3);
+  border-color: rgba(245, 158, 11, 0.4);
+  animation: timerPulse 1s ease infinite;
+}
+
+.player-timer-badge.timer-critical {
+  background: rgba(239, 68, 68, 0.3);
+  color: var(--accent-4);
+  border-color: rgba(239, 68, 68, 0.5);
+  animation: timerPulse 0.5s ease infinite;
+}
+
+.player-timer-bar-container {
+  width: 100%;
+  height: 6px;
+  background: var(--glass);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.player-timer-bar {
+  height: 100%;
+  width: 100%;
+  background: var(--gradient-3);
+  border-radius: 3px;
+  transition: width 0.5s linear;
+}
+
+.player-timer-bar.timer-bar-warning {
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+}
+
+.player-timer-bar.timer-bar-critical {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  animation: timerBarFlash 0.5s ease infinite;
+}
+
+.player-timer-bar-container.timer-shake {
+  animation: timerShake 0.4s ease infinite;
+}
+
+/* Timer Animations */
+@keyframes timerPulse {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.6;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes timerShake {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-3px);
+  }
+
+  75% {
+    transform: translateX(3px);
+  }
+}
+
+@keyframes timerBarFlash {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }
 
 /* ============ RESPONSIVE ============ */

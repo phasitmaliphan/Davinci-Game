@@ -114,6 +114,13 @@
     <div class="round-indicator">
       <div class="round-number" id="roundText">ข้อ 1 / 10</div>
       <div class="round-bar" id="roundBar"></div>
+      <div class="timer-display" id="timerDisplay">
+        <svg class="timer-ring" viewBox="0 0 120 120">
+          <circle class="timer-ring-bg" cx="60" cy="60" r="52"></circle>
+          <circle class="timer-ring-progress" id="timerRingProgress" cx="60" cy="60" r="52"></circle>
+        </svg>
+        <div class="timer-text" id="timerText">60</div>
+      </div>
     </div>
 
     <div class="board-layout">
@@ -274,6 +281,35 @@
       document.getElementById('guessCount').textContent = '0';
       wordSizeIndex = 0;
       colorIndex = 0;
+
+      // Reset timer
+      updateHostTimer(data.timeLeft || 60);
+    });
+
+    // ======== TIMER ========
+    const TOTAL_TIME = 60;
+    const timerCircumference = 2 * Math.PI * 52;
+    document.getElementById('timerRingProgress').style.strokeDasharray = timerCircumference;
+
+    function updateHostTimer(timeLeft) {
+      const timerText = document.getElementById('timerText');
+      const timerDisplay = document.getElementById('timerDisplay');
+      const timerProgress = document.getElementById('timerRingProgress');
+
+      timerText.textContent = timeLeft;
+      const fraction = timeLeft / TOTAL_TIME;
+      timerProgress.style.strokeDashoffset = timerCircumference * (1 - fraction);
+
+      timerDisplay.classList.remove('timer-warning', 'timer-critical');
+      if (timeLeft <= 5) {
+        timerDisplay.classList.add('timer-critical');
+      } else if (timeLeft <= 10) {
+        timerDisplay.classList.add('timer-warning');
+      }
+    }
+
+    socket.on('timer-tick', (data) => {
+      updateHostTimer(data.timeLeft);
     });
 
     socket.on('new-guess', (data) => {
@@ -300,7 +336,7 @@
       }
 
       document.getElementById('winnerAnswer').textContent = data.winner.answer;
-      
+
       if (data.isLastRound) {
         document.getElementById('overlayNextBtn').textContent = '📊 ดูผลคะแนน';
       } else {
@@ -396,13 +432,76 @@
 
       if (data.status === 'playing' && data.question) {
         document.getElementById('lobbyScreen').style.display = 'none';
+        document.getElementById('scoreboardScreen').classList.remove('active');
         document.getElementById('gameBoard').classList.add('active');
+        document.getElementById('winnerOverlay').classList.remove('active');
+
         currentRound = data.question.roundNumber - 1;
         document.getElementById('roundText').textContent = `ข้อ ${data.question.roundNumber} / ${data.totalRounds}`;
         document.getElementById('navRoundText').textContent = `${data.question.roundNumber} / ${data.totalRounds}`;
         document.getElementById('questionImage').src = data.question.image;
         document.getElementById('prevBtn').disabled = currentRound <= 0;
         document.getElementById('nextBtn').disabled = currentRound >= totalRounds - 1;
+        document.getElementById('revealBtn').disabled = false;
+
+        // Restore round bar
+        const bar = document.getElementById('roundBar');
+        bar.innerHTML = '';
+        for (let i = 0; i < data.totalRounds; i++) {
+          const dot = document.createElement('div');
+          dot.className = 'round-dot';
+          if (i < data.question.roundNumber - 1) dot.classList.add('completed');
+          if (i === data.question.roundNumber - 1) dot.classList.add('active');
+          bar.appendChild(dot);
+        }
+
+        // Restore timer
+        if (data.timeLeft != null) updateHostTimer(data.timeLeft);
+
+        // Restore guesses
+        document.getElementById('wordcloud').innerHTML = '';
+        document.getElementById('guessCount').textContent = data.guesses ? data.guesses.length : 0;
+        if (data.guesses) {
+          data.guesses.forEach(g => {
+            const cloud = document.getElementById('wordcloud');
+            const item = document.createElement('div');
+            item.className = `word-item ${getNextColor()} ${getRandomSize()}`;
+            item.innerHTML = `<strong>${g.name}</strong>: ${g.text}`;
+            cloud.appendChild(item);
+          });
+        }
+      } else if (data.status === 'showing-winner' && data.winner) {
+        document.getElementById('lobbyScreen').style.display = 'none';
+        document.getElementById('scoreboardScreen').classList.remove('active');
+        document.getElementById('gameBoard').classList.add('active');
+        document.getElementById('winnerOverlay').classList.add('active');
+
+        if (data.question) {
+          currentRound = data.question.roundNumber - 1;
+          document.getElementById('roundText').textContent = `ข้อ ${data.question.roundNumber} / ${data.totalRounds}`;
+          document.getElementById('navRoundText').textContent = `${data.question.roundNumber} / ${data.totalRounds}`;
+          document.getElementById('questionImage').src = data.question.image;
+        }
+
+        document.getElementById('revealBtn').disabled = true;
+        if (data.winner.name) {
+          document.getElementById('winnerName').textContent = data.winner.name;
+          document.getElementById('winnerName').style.display = 'block';
+          document.querySelector('.winner-label').textContent = 'ผู้ชนะ!';
+        } else {
+          document.getElementById('winnerName').style.display = 'none';
+          document.querySelector('.winner-label').textContent = '💡 หมดเวลา! เฉลยคือ';
+        }
+        document.getElementById('winnerAnswer').textContent = data.winner.answer;
+
+        const isLast = currentRound >= totalRounds - 1;
+        document.getElementById('overlayNextBtn').textContent = isLast ? '📊 ดูผลคะแนน' : '➡️ ข้อถัดไป';
+      } else if (data.status === 'finished') {
+        document.getElementById('lobbyScreen').style.display = 'none';
+        document.getElementById('gameBoard').classList.remove('active');
+        document.getElementById('winnerOverlay').classList.remove('active');
+        document.getElementById('scoreboardScreen').classList.add('active');
+        renderScoreboard(data.players);
       }
     });
   </script>

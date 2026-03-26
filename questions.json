@@ -1,91 +1,91 @@
 [
-  {
-    "id": 1,
-    "image": "/images/q1.png",
-    "answers": [
-      "มหาสมุทร",
-      "ocean"
-    ],
-    "display": "มหาสมุทร (ม้าหาสมุด)"
-  },
-  {
-    "id": 2,
-    "image": "/images/q2.png",
-    "answers": [
-      "กองทัพเรือ"
-    ],
-    "display": "กองทัพเรือ (กลองทับเรือ)"
-  },
-  {
-    "id": 3,
-    "image": "/images/q3.png",
-    "answers": [
-      "บาร์โค้ด",
-      "Barcode"
-    ],
-    "display": "บาร์โค้ด (Barcode)"
-  },
-  {
-    "id": 4,
-    "image": "/images/q4.png",
-    "answers": [
-      "ใบขับขี่",
-      "license"
-    ],
-    "display": "ใบขับขี่"
-  },
-  {
-    "id": 5,
-    "image": "/images/q5.png",
-    "answers": [
-      "ยาสีฟัน",
-      "toothpaste"
-    ],
-    "display": "ยาสีฟัน"
-  },
-  {
-    "id": 6,
-    "image": "/images/q6.png",
-    "answers": [
-      "กระเป๋าเดินทาง",
-      "luggage"
-    ],
-    "display": "กระเป๋าเดินทาง"
-  },
-  {
-    "id": 7,
-    "image": "/images/q7.png",
-    "answers": [
-      "แอลกอฮอล์",
-      "alcohol"
-    ],
-    "display": "แอลกอฮอล์ (แอลเกาะฮอ)"
-  },
-  {
-    "id": 8,
-    "image": "/images/q8.png",
-    "answers": [
-      "รถบังคับวิทยุ"
-    ],
-    "display": "รถบังคับวิทยุ"
-  },
-  {
-    "id": 9,
-    "image": "/images/q9.png",
-    "answers": [
-      "ปลาปิรันย่า",
-      "ปิรันย่า"
-    ],
-    "display": "ปลาปิรันย่า"
-  },
-  {
-    "id": 10,
-    "image": "/images/q10.png",
-    "answers": [
-      "What",
-      "what",
-      "อะไร"
-    ],
-    "display": "What (W+hat)"
-  }
+    {
+        "id": 1,
+        "image": "/images/q1.png",
+        "answers": [
+            "มหาสมุทร",
+            "ocean"
+        ],
+        "display": "มหาสมุทร (ม้าหาสมุด)"
+    },
+    {
+        "id": 2,
+        "image": "/images/q2.png",
+        "answers": [
+            "กองทัพเรือ"
+        ],
+        "display": "กองทัพเรือ (กลองทับเรือ)"
+    },
+    {
+        "id": 3,
+        "image": "/images/q3.png",
+        "answers": [
+            "บาร์โค้ด",
+            "Barcode"
+        ],
+        "display": "บาร์โค้ด (Barcode)"
+    },
+    {
+        "id": 4,
+        "image": "/images/q4.png",
+        "answers": [
+            "ใบขับขี่",
+            "license"
+        ],
+        "display": "ใบขับขี่"
+    },
+    {
+        "id": 5,
+        "image": "/images/q5.png",
+        "answers": [
+            "ยาสีฟัน",
+            "toothpaste"
+        ],
+        "display": "ยาสีฟัน"
+    },
+    {
+        "id": 6,
+        "image": "/images/q6.png",
+        "answers": [
+            "กระเป๋าเดินทาง",
+            "luggage"
+        ],
+        "display": "กระเป๋าเดินทาง"
+    },
+    {
+        "id": 7,
+        "image": "/images/q7.png",
+        "answers": [
+            "แอลกอฮอล์",
+            "alcohol"
+        ],
+        "display": "แอลกอฮอล์ (แอลเกาะฮอ)"
+    },
+    {
+        "id": 8,
+        "image": "/images/q8.png",
+        "answers": [
+            "รถบังคับวิทยุ"
+        ],
+        "display": "รถบังคับวิทยุ"
+    },
+    {
+        "id": 9,
+        "image": "/images/q9.png",
+        "answers": [
+            "ปลาปิรันย่า",
+            "ปิรันย่า"
+        ],
+        "display": "ปลาปิรันย่า (ปลา-ปี-Run-หญ้า)"
+    },
+    {
+        "id": 10,
+        "image": "/images/q10.png",
+        "answers": [
+            "What",
+            "what",
+            "อะไร"
+        ],
+        "display": "What (W+hat)"
+    }
 ]

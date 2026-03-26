@@ -50,7 +50,14 @@
     <div id="gameScreen" class="player-game-screen">
         <div class="player-header">
             <div class="player-round" id="playerRoundText">ข้อ 1 / 10</div>
+            <div class="player-timer-badge" id="playerTimerBadge">
+                ⏱️ <span id="playerTimerText">60</span>s
+            </div>
             <div class="player-score-badge">⭐ <span id="myScore">0</span></div>
+        </div>
+
+        <div class="player-timer-bar-container">
+            <div class="player-timer-bar" id="playerTimerBar"></div>
         </div>
 
         <div class="player-image-container">
@@ -94,6 +101,19 @@
         let hasJoined = false;
         let myGuesses = [];
 
+        // ======== AUTO-REJOIN ON REFRESH ========
+        (function autoRejoin() {
+            const savedName = sessionStorage.getItem('davinci-player-name');
+            if (savedName) {
+                myName = savedName;
+                hasJoined = true;
+                socket.emit('join', savedName);
+                document.getElementById('joinScreen').style.display = 'none';
+                document.getElementById('waitingScreen').classList.add('active');
+                document.getElementById('myNameDisplay').textContent = `👤 ${savedName}`;
+            }
+        })();
+
         // ======== JOIN ========
         function joinGame() {
             const name = document.getElementById('nameInput').value.trim();
@@ -105,6 +125,7 @@
 
             myName = name;
             socket.emit('join', name);
+            sessionStorage.setItem('davinci-player-name', name);
 
             // Switch to waiting screen
             document.getElementById('joinScreen').style.display = 'none';
@@ -152,6 +173,42 @@
             setTimeout(() => {
                 document.getElementById('guessInput').focus();
             }, 500);
+
+            // Reset timer
+            updatePlayerTimer(data.timeLeft || 60);
+        });
+
+        // ======== TIMER ========
+        const TOTAL_TIME = 60;
+
+        function updatePlayerTimer(timeLeft) {
+            const timerText = document.getElementById('playerTimerText');
+            const timerBar = document.getElementById('playerTimerBar');
+            const timerBadge = document.getElementById('playerTimerBadge');
+            const timerBarContainer = document.querySelector('.player-timer-bar-container');
+
+            timerText.textContent = timeLeft;
+            const fraction = timeLeft / TOTAL_TIME;
+            timerBar.style.width = (fraction * 100) + '%';
+
+            // Remove previous states
+            timerBadge.classList.remove('timer-warning', 'timer-critical');
+            timerBar.classList.remove('timer-bar-warning', 'timer-bar-critical');
+            if (timerBarContainer) timerBarContainer.classList.remove('timer-shake');
+
+            if (timeLeft <= 5) {
+                timerBadge.classList.add('timer-critical');
+                timerBar.classList.add('timer-bar-critical');
+                if (timerBarContainer) timerBarContainer.classList.add('timer-shake');
+            } else if (timeLeft <= 10) {
+                timerBadge.classList.add('timer-warning');
+                timerBar.classList.add('timer-bar-warning');
+                if (timerBarContainer) timerBarContainer.classList.add('timer-shake');
+            }
+        }
+
+        socket.on('timer-tick', (data) => {
+            updatePlayerTimer(data.timeLeft);
         });
 
         // ======== SUBMIT GUESS ========
@@ -282,11 +339,59 @@
 
             document.getElementById('waitPlayerCount').textContent = data.players.length;
 
+            // Restore score from server
+            const me = data.players.find(p => p.name === myName);
+            if (me) {
+                myScore = me.score;
+                document.getElementById('myScore').textContent = myScore;
+            }
+
             if (data.status === 'playing' && data.question) {
                 hideAll();
                 document.getElementById('gameScreen').classList.add('active');
                 document.getElementById('playerRoundText').textContent = `ข้อ ${data.question.roundNumber} / ${data.totalRounds}`;
                 document.getElementById('playerImage').src = data.question.image;
+                document.getElementById('guessInput').value = '';
+                document.getElementById('guessInput').disabled = false;
+                document.getElementById('myGuesses').innerHTML = '';
+                myGuesses = [];
+                if (data.timeLeft != null) updatePlayerTimer(data.timeLeft);
+            } else if (data.status === 'showing-winner' && data.winner) {
+                hideAll();
+                document.getElementById('playerWinnerScreen').classList.add('active');
+                if (data.winner.name === null) {
+                    document.getElementById('winEmoji').textContent = '💡';
+                    document.getElementById('winMessage').innerHTML = `<div class="someone-won-text"><strong style="color:var(--text)">หมดเวลา! เฉลยคือ...</strong></div>`;
+                } else if (data.winner.name === myName) {
+                    document.getElementById('winEmoji').textContent = '🎉';
+                    document.getElementById('winMessage').innerHTML = `<div class="you-won-text">คุณชนะ!</div>`;
+                } else {
+                    document.getElementById('winEmoji').textContent = '👏';
+                    document.getElementById('winMessage').innerHTML = `<div class="someone-won-text"><strong style="color:#f59e0b">${data.winner.name}</strong> ตอบถูก!</div>`;
+                }
+                document.getElementById('correctAnswerDisplay').textContent = `คำตอบ: ${data.winner.answer}`;
+            } else if (data.status === 'finished') {
+                hideAll();
+                document.getElementById('playerScoreboard').classList.add('active');
+                const list = document.getElementById('playerScoreList');
+                list.innerHTML = '';
+                data.players.forEach((p, i) => {
+                    const item = document.createElement('div');
+                    item.className = 'score-item glass-card';
+                    item.style.animationDelay = `${i * 0.1}s`;
+                    const isMe = p.name === myName;
+                    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`;
+                    const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+                    item.innerHTML = `
+                        <div class="score-rank ${rankClass}">${medal}</div>
+                        <div class="score-name" ${isMe ? 'style="color: var(--accent-2)"' : ''}>${p.name} ${isMe ? '(คุณ)' : ''}</div>
+                        <div class="score-points">${p.score} คะแนน</div>
+                    `;
+                    list.appendChild(item);
+                });
+            } else if (data.status === 'waiting') {
+                hideAll();
+                document.getElementById('waitingScreen').classList.add('active');
             }
         });
     </script>
