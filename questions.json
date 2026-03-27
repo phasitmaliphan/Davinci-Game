@@ -1,7 +1,7 @@
 [
     {
         "id": 1,
-        "image": "/images/q1.png",
+        "image": "https://res.cloudinary.com/dkytdrfa9/image/upload/f_auto,q_auto/q1.png",
         "answers": [
             "มหาสมุทร",
             "ocean"
@@ -10,7 +10,7 @@
     },
     {
         "id": 2,
-        "image": "/images/q2.png",
+        "image": "https://res.cloudinary.com/dkytdrfa9/image/upload/f_auto,q_auto/q2.png",
         "answers": [
             "กองทัพเรือ"
         ],
@@ -18,7 +18,7 @@
     },
     {
         "id": 3,
-        "image": "/images/q3.png",
+        "image": "https://res.cloudinary.com/dkytdrfa9/image/upload/f_auto,q_auto/q3.png",
         "answers": [
             "บาร์โค้ด",
             "Barcode"
@@ -27,7 +27,7 @@
     },
     {
         "id": 4,
-        "image": "/images/q4.png",
+        "image": "https://res.cloudinary.com/dkytdrfa9/image/upload/f_auto,q_auto/q4.png",
         "answers": [
             "ใบขับขี่",
             "license"
@@ -36,7 +36,7 @@
     },
     {
         "id": 5,
-        "image": "/images/q5.png",
+        "image": "https://res.cloudinary.com/dkytdrfa9/image/upload/f_auto,q_auto/q5.png",
         "answers": [
             "ยาสีฟัน",
             "toothpaste"
@@ -45,7 +45,7 @@
     },
     {
         "id": 6,
-        "image": "/images/q6.png",
+        "image": "https://res.cloudinary.com/dkytdrfa9/image/upload/f_auto,q_auto/q6.png",
         "answers": [
             "กระเป๋าเดินทาง",
             "luggage"
@@ -54,7 +54,7 @@
     },
     {
         "id": 7,
-        "image": "/images/q7.png",
+        "image": "https://res.cloudinary.com/dkytdrfa9/image/upload/f_auto,q_auto/q7.png",
         "answers": [
             "แอลกอฮอล์",
             "alcohol"
@@ -63,7 +63,7 @@
     },
     {
         "id": 8,
-        "image": "/images/q8.png",
+        "image": "https://res.cloudinary.com/dkytdrfa9/image/upload/f_auto,q_auto/q8.png",
         "answers": [
             "รถบังคับวิทยุ"
         ],
@@ -71,7 +71,7 @@
     },
     {
         "id": 9,
-        "image": "/images/q9.png",
+        "image": "https://res.cloudinary.com/dkytdrfa9/image/upload/f_auto,q_auto/q9.png",
         "answers": [
             "ปลาปิรันย่า",
             "ปิรันย่า"
@@ -80,7 +80,7 @@
     },
     {
         "id": 10,
-        "image": "/images/q10.png",
+        "image": "https://res.cloudinary.com/dkytdrfa9/image/upload/f_auto,q_auto/q10.png",
         "answers": [
             "What",
             "what",
