@@ -19,15 +19,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ============ QUESTIONS ============
 const QUESTIONS_FILE = path.join(__dirname, 'questions.json');
 
+let questionsCache = null;
+
 function loadQuestions() {
+  if (questionsCache) return questionsCache;
   try {
-    return JSON.parse(fs.readFileSync(QUESTIONS_FILE, 'utf-8'));
+    questionsCache = JSON.parse(fs.readFileSync(QUESTIONS_FILE, 'utf-8'));
+    return questionsCache;
   } catch (e) {
     return [];
   }
 }
 
 function saveQuestions(questions) {
+  questionsCache = questions;
   fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(questions, null, 2), 'utf-8');
 }
 
