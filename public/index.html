@@ -98,6 +98,16 @@
         const socket = io();
         let myName = '';
         let myScore = 0;
+
+        function preloadImages(imageUrls) {
+            if (!imageUrls || !Array.isArray(imageUrls)) return;
+            imageUrls.forEach(url => {
+                if (url) {
+                    const img = new Image();
+                    img.src = url;
+                }
+            });
+        }
         let hasJoined = false;
         let myGuesses = [];
 
@@ -335,6 +345,8 @@
 
         // ======== RECONNECT STATE ========
         socket.on('game-state', (data) => {
+            if (data.allImages) preloadImages(data.allImages);
+
             if (!hasJoined) return;
 
             document.getElementById('waitPlayerCount').textContent = data.players.length;

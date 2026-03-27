@@ -208,7 +208,8 @@ io.on('connection', (socket) => {
       id: questions[gameState.currentRound]?.id,
       image: questions[gameState.currentRound]?.image,
       roundNumber: gameState.currentRound + 1
-    } : null
+    } : null,
+    allImages: questions.map(q => q.image)
   });
 
   // ---------- Player Join ----------
