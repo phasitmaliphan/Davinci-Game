@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: davinci-game
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    plan: free
