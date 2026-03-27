@@ -281,7 +281,7 @@
 
       // Image
       const img = document.getElementById('questionImage');
-      img.src = data.question.image + '?t=' + Date.now();
+      img.src = data.question.image;
       img.style.animation = 'none';
       void img.offsetHeight;
       img.style.animation = 'imageReveal 0.8s ease';
