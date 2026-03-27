@@ -56,7 +56,7 @@ app.get('/api/qrcode', async (req, res) => {
   try {
     const localIP = getLocalIP();
     const PORT = process.env.PORT || 3000;
-    const url = publicUrl || `http://${localIP}:${PORT}`;
+    const url = process.env.RENDER_EXTERNAL_URL || publicUrl || `http://${localIP}:${PORT}`;
     const qrDataUrl = await QRCode.toDataURL(url, {
       width: 400,
       margin: 2,
